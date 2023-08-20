@@ -1,11 +1,50 @@
 const indexDao = require('../dao/indexDao')
 
-exports.dummy = function (req, res) {
-  return res.send('안녕')
-}
+exports.createdTodo = async function (req, res) {
+  const { userIdx, contents, type } = req.body
 
-exports.getUsers = async function (req, res) {
-  // DB 뽑아온 데이터들
-  const userRows = await indexDao.getUserRows()
-  return res.send(userRows)
+  // 검증하기
+  if (!userIdx || !contents || !type) {
+    return res.send({
+      isSuccess: false,
+      code: 400,
+      message: '입력값이 누락됐습니다.',
+    })
+  }
+
+  // contents 20글자 초과 불가
+  if (contents.length > 20) {
+    return res.send({
+      isSuccess: false,
+      code: 400,
+      message: '"contents"는 20글자 이하로 설정해주세요.',
+    })
+  }
+
+  // type:
+  const validType = ['do', 'decide', 'delete', 'delegate']
+
+  if (!validType.includes(type)) {
+    return res.send({
+      isSuccess: false,
+      code: 400,
+      message: '유효한 타입이 아닙니다.',
+    })
+  }
+
+  const insertTodoRow = await indexDao.insertTodo(userIdx, contents, type)
+
+  if (!insertTodoRow) {
+    return res.send({
+      isSuccess: false,
+      code: 403,
+      message: '요청이 실패했습니다. 관리자에게 문의해주세요.',
+    })
+  }
+
+  return res.send({
+    isSuccess: true,
+    code: 200,
+    message: '일정 생성 성공',
+  })
 }

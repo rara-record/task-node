@@ -1,6 +1,5 @@
 const indexController = require('../controller/indexController')
 
-exports.indexRouter = function (add) {
-  add.get('/', indexController.dummy)
-  add.get('/users', indexController.getUsers)
+exports.indexRouter = function (app) {
+  app.post('/todo', indexController.createdTodo)
 }

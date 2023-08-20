@@ -20,3 +20,23 @@ exports.getUserRows = async function () {
     return false
   }
 }
+
+exports.insertTodo = async function (userIdx, contents, type) {
+  try {
+    const connection = await pool.getConnection(async (coon) => coon)
+    try {
+      const insertTodoQuery = `insert into Todos (userIdx, contents, type) values (?, ?, ?)`
+      const insertTodoParams = [userIdx, contents, type]
+      const [row] = await connection.query(insertTodoQuery, insertTodoParams)
+      return row
+    } catch (err) {
+      console.log(`#### insertTodo Query Error #### \n ${err}`)
+      return false
+    } finally {
+      connection.release()
+    }
+  } catch (err) {
+    console.log(`#### insertTodo DB Error ####  \n ${err} `)
+    return false
+  }
+}

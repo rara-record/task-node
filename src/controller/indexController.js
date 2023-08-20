@@ -48,3 +48,38 @@ exports.createdTodo = async function (req, res) {
     message: '일정 생성 성공',
   })
 }
+
+exports.readTodo = async function (req, res) {
+  const { userIdx } = req.params
+
+  const todos = {}
+  const types = ['do', 'decide', 'delete', 'delegate']
+
+  for (let type of types) {
+    let selectTodoByTypeRows = await indexDao.selectTodoByType(userIdx, type)
+
+    if (!selectTodoByTypeRows) {
+      return res.send({
+        isSuccess: false,
+        status: 400,
+        message: '일정 조회 실패, 관리자에게 문의해주세요.',
+      })
+    }
+
+    todos[type] = selectTodoByTypeRows
+  }
+
+  return res.send({
+    result: todos,
+    isSuccess: true,
+    status: 200,
+    message: '일정 조회 성공',
+  })
+
+  // const todos = await types.reduce(async (acc, type) => {
+  //   ;(await acc)[type] = await indexDao.selectTodoByType(userIdx, type)
+  //   return acc
+  // }, Promise.resolve({}))
+  //
+  // return res.send(todos)
+}

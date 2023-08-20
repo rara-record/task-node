@@ -40,3 +40,30 @@ exports.insertTodo = async function (userIdx, contents, type) {
     return false
   }
 }
+
+exports.selectTodoByType = async function (userIdx, type) {
+  try {
+    const connection = await pool.getConnection(async (coon) => coon)
+    try {
+      const selectTodoByTypeQuery =
+        'select todoIdx, type, contents  from Todos where userIdx = ? and type = ? and status = "A"'
+
+      const selectTodoByTypeParams = [userIdx, type]
+
+      const [row] = await connection.query(
+        // await 잊지 않기
+        selectTodoByTypeQuery,
+        selectTodoByTypeParams
+      )
+      return row
+    } catch (err) {
+      console.log(`#### selectTodoByType Query Error #### \n ${err}`)
+      return false
+    } finally {
+      connection.release()
+    }
+  } catch (err) {
+    console.log(`#### selectTodo DB Error #### \n ${err}`)
+    return false
+  }
+}

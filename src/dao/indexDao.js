@@ -67,3 +67,50 @@ exports.selectTodoByType = async function (userIdx, type) {
     return false
   }
 }
+
+exports.selectValidTodo = async function (userIdx, todoIdx) {
+  try {
+    const connection = await pool.getConnection(async (coon) => coon)
+
+    try {
+      const selectValidTodoQuery =
+        'select * from Todos where userIdx = ? and todoIdx = ? and (not status = "D")'
+      const selectValidTodoQueryParams = [userIdx, todoIdx]
+      const [row] = await connection.query(
+        selectValidTodoQuery,
+        selectValidTodoQueryParams
+      )
+      return row
+    } catch (err) {
+      console.log(`#### selectValid DB Error #### \n ${err}`)
+      return false
+    } finally {
+      connection.release()
+    }
+  } catch (err) {
+    console.log(`#### selectValid DB Error #### \n ${err}`)
+    return false
+  }
+}
+
+exports.updateTodo = async function (userIdx, todoIdx, contents, status) {
+  try {
+    const connection = await pool.getConnection(async (coon) => coon)
+
+    try {
+      const updateTodo =
+        'update Todos set contents = ifnull(?, contents), status = ifnull(?, status) where  userIdx = ? and todoIdx = ? AND (not status = "D")'
+      const updateTodoParams = [contents, status, userIdx, todoIdx]
+      const [row] = await connection.query(updateTodo, updateTodoParams)
+      return row
+    } catch (err) {
+      console.log(`#### updateTodo DB Error #### \n ${err}`)
+      return false
+    } finally {
+      connection.release()
+    }
+  } catch (err) {
+    console.log(`#### updateTodo DB Error #### \n ${err}`)
+    return false
+  }
+}
